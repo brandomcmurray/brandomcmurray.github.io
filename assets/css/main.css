@@ -1477,7 +1477,8 @@ input, select, textarea {
 				display: flex;
 				flex-wrap: wrap;
 				box-sizing: border-box;
-				align-items: stretch;
+				flex-direction: column;
+				align-items: center;
 			}
 
 				.row > * {
