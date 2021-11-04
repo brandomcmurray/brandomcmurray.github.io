@@ -188,7 +188,7 @@ input, select, textarea {
 		width: 1400px;
 	}
 
-	.container #about {
+	#about.container {
 		margin: 0 auto;
 		max-width: calc(100% - 50px);
 		width: 1200px;
