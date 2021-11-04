@@ -321,6 +321,11 @@ input, select, textarea {
 			width: 33.33333%;
 		}
 
+		#about-image.row > .col-4 {
+			width: 33.33333%;
+			align-self: center;
+		}
+
 		.row > .off-4 {
 			margin-left: 33.33333%;
 		}
