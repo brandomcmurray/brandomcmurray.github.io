@@ -1477,8 +1477,7 @@ input, select, textarea {
 				display: flex;
 				flex-wrap: wrap;
 				box-sizing: border-box;
-				flex-direction: column;
-				align-items: center;
+				align-items: stretch;
 			}
 
 				.row > * {
@@ -1714,6 +1713,18 @@ input, select, textarea {
 						.row.gtr-200.gtr-uniform > * {
 							padding-top: 60px;
 						}
+
+		}
+
+		@media screen and (max-width: 360px) {
+
+			.row {
+				display: flex;
+				flex-wrap: wrap;
+				box-sizing: border-box;
+				flex-direction: column;
+				align-items: center;
+			}
 
 		}
 
