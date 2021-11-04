@@ -72,10 +72,6 @@ input, select, textarea {
 	appearance: none;
 }
 
-#about {
-    height: 500px;
-}
-
 /* Basic */
 
 	html {
@@ -186,12 +182,6 @@ input, select, textarea {
 		margin: 0 auto;
 		max-width: 100%;
 		width: 1400px;
-	}
-
-	#about.container {
-		margin: 0 auto;
-		max-width: calc(100% - 50px);
-		width: 1200px;
 	}
 
 		.container.medium {
