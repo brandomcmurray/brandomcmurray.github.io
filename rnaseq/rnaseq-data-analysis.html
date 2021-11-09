@@ -246,7 +246,7 @@ div.tocify {
 <h1 class="title toc-ignore">RNA-seq Data Analysis Pipeline</h1>
 <h4 class="author">Author: Brandon McMurray</h4>
 <h4 class="author">Conact: <a href="mailto:brandon.mcmurray@sickkids.ca" class="email">brandon.mcmurray@sickkids.ca</a></h4>
-<h4 class="date">Established: August 01, 2020 | Updated: October 26, 2021</h4>
+<h4 class="date">Established: August 01, 2020 | Updated: November 08, 2021</h4>
 
 </div>
 
@@ -470,6 +470,15 @@ GCF_015227675.2_mRatBN7.2_genomic.gtf
 </tbody>
 </table>
 <p>It is imperative that the FASTA chromosome names match the GTF chromosome names. To avoid issues regarding chromosome naming differences, try to use files from the same source together (e.g., ENSEMBL FASTA files with ENSEMBL GTF files, etc.).</p>
+<p>Full reference genome assemblies are best downloaded from the International Genome Reference Consortium (GRC) through RefSeq (form: GCF_000001405) or NCBI’s GenBank (form: GCA_000001405). Both versions are available through GENCODE for many organism assemblies.</p>
+<p>Genesets for <em>Homo sapiens</em> can be easily downloaded from a variety of reputable organizations and institutions, including:</p>
+<ul>
+<li><a href="https://www.gencodegenes.org/human/">GENCODE</a> (comprehensive version is preferable to basic version)</li>
+<li><a href="https://www.ncbi.nlm.nih.gov/genome/guide/human/">RefSeq</a></li>
+<li><a href="https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.39/?utm_source=assembly&amp;utm_medium=referral&amp;utm_campaign=KnownItemSensor:taxname">GenBank</a></li>
+<li><a href="https://useast.ensembl.org/Homo_sapiens/Info/Index">Ensembl</a></li>
+<li><a href="https://hg38.lncipedia.org/download">LNCipedia</a></li>
+</ul>
 <p>Although these files often come compressed (.gz), they <em>must</em> be decompressed for use by tools in this pipeline. To do this, use <code>gunzip</code>.</p>
 <pre class="bash"><code>gunzip GRCh38.p13.genome.fa.gz
 gunzip gencode.v38.annotation.gtf.gz</code></pre>
