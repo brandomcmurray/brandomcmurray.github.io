@@ -2097,6 +2097,7 @@ input, select, textarea {
 		position: relative;
 	}
 
+		<!--
 		.image:before {
 			background: url("images/overlay.png");
 			content: '';
@@ -2106,6 +2107,7 @@ input, select, textarea {
 			top: 0;
 			width: 100%;
 		}
+		-->
 
 		.image.fit {
 			display: block;
@@ -2420,8 +2422,8 @@ input, select, textarea {
 		input[type="reset"].primary,
 		button.primary,
 		.button.primary {
-			background: #83d3c9;
-			border-color: #83d3c9;
+			background: #00bcd4;
+			border-color: #00bcd4;
 			color: #fff !important;
 		}
 
@@ -2430,8 +2432,8 @@ input, select, textarea {
 			input[type="reset"].primary:hover,
 			button.primary:hover,
 			.button.primary:hover {
-				background: #96dad1 !important;
-				border-color: #96dad1 !important;
+				background: #13c3dc !important;
+				border-color: #13c3dc !important;
 			}
 
 		input[type="button"].fit,
@@ -2464,7 +2466,7 @@ input, select, textarea {
 		}
 
 		.wrapper.style2 {
-			background-color: #83d3c9;
+			background-color: #3f507c;
 			background-image: url("images/light-bl.svg"), url("images/light-br.svg");
 			background-position: bottom left, bottom right;
 			background-repeat: no-repeat, no-repeat;
