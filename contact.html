@@ -41,19 +41,19 @@
 
 							<!-- Content -->
 								<div class="content">
-									<form>
+									<form action="contact.php" method="post">
 										<div class="row gtr-50">
 											<div class="col-6 col-12-mobile">
-												<input type="text" name="name" placeholder="FirstName LastName" />
+												<input type="text" name="name" placeholder="FirstName LastName" pattern=[A-Za-z0-9\s]{3,30} required />
 											</div>
 											<div class="col-6 col-12-mobile">
-												<input type="text" name="email" placeholder="Email" />
+												<input type="text" name="email" placeholder="Email" required />
 											</div>
 											<div class="col-12">
-												<input type="text" name="subject" placeholder="Subject" />
+												<input type="text" name="subject" placeholder="Subject" pattern=[A-Za-z0-9\s]{8,60} required />
 											</div>
 											<div class="col-12">
-												<textarea name="message" placeholder="Message" rows="7"></textarea>
+												<textarea name="message" placeholder="Message" rows="7" required></textarea>
 											</div>
 											<div class="col-12">
 												<ul class="buttons">
