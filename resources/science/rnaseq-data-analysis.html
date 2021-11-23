@@ -246,7 +246,7 @@ div.tocify {
 <h1 class="title toc-ignore">RNA-seq Data Analysis Pipeline</h1>
 <h4 class="author">Author: Brandon McMurray</h4>
 <h4 class="author">Conact: <a href="mailto:brandon.mcmurray@sickkids.ca" class="email">brandon.mcmurray@sickkids.ca</a></h4>
-<h4 class="date">Established: August 01, 2020 | Updated: November 08, 2021</h4>
+<h4 class="date">Established: August 01, 2020 | Updated: November 23, 2021</h4>
 
 </div>
 
@@ -352,7 +352,7 @@ sampleC_r2.fq.gz
 </tr>
 </tbody>
 </table>
-<p>Publicly available RNA-seq data of this format can be found using the NCBI sequence read archive (<a href="https://www.ncbi.nlm.nih.gov/sra">SRA</a>); the NCBI Gene Expression Omnibus (<a href="https://www.ncbi.nlm.nih.gov/geo/">GEO</a>); and other databases. In an attempt to streamline the pipeline and limit the modification of scripts by the user, <strong>please ensure the data downloaded begins with “SRR”</strong> (a common NCBI SRA convention). Download this data to any desired folder on SickKids’ HPC cluster. To do this, use <code>wget</code> or <code>curl</code> or another non-interactive download tool supporting HTTP, HTTPS, and FTP protocols.</p>
+<p>Publicly available RNA-seq data of this format can be found using the NCBI sequence read archive (<a href="https://www.ncbi.nlm.nih.gov/sra">SRA</a>); the NCBI Gene Expression Omnibus (<a href="https://www.ncbi.nlm.nih.gov/geo/">GEO</a>); and other databases. Data coming from the NCBI SRA are conventionally written with the prefix “SRR”. Download this data to any desired folder on SickKids’ HPC cluster. To do this, use <code>wget</code> or <code>curl</code> or another non-interactive download tool supporting HTTP, HTTPS, and FTP protocols.</p>
 <pre class="bash"><code>wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR750/005/SRR7506545/SRR7506545_1.fastq.gz
 
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR750/005/SRR7506545/SRR7506545_1.fastq.gz -o SRR7506545_day00_RNA_sequencing_Rep1_hESC_1.fastq.gz</code></pre>
@@ -376,9 +376,9 @@ module load fastqc/0.11.9
 
 #######################################
 # EDIT PATHS AND FILE NAMES AFTER: &quot;=&quot;
-INPUT=/path/to/raw/seq/reads
+INPUT=/path/to/raw/seq/reads/folder
 READFORMAT=   # e.g., fastq, fq, fasta, fa, etc.
-OUTPUT=/path/to/desired/qc/output/file/destination
+OUTPUT=/path/to/desired/qc/output/folder
 # LIST ALL SAMPLE NAMES SEPARATED BY SPACES AFTER: &quot;for FILE in &quot;
 for FILE in sampleA sampleB sampleC
 #######################################
@@ -407,11 +407,11 @@ module load fastqc/0.11.9
 
 #######################################
 # EDIT PATHS AND FILE NAMES AFTER: &quot;=&quot;
-INPUT=/path/to/raw/seq/reads
+INPUT=/path/to/raw/seq/reads/folder
 END1=   # paired-end 1 file suffix; e.g., _1, _r1, _R1, .1, .r1, .R1, etc.
 END2=   # paired-end 2 file suffix; e.g., _2, _r2, _R2, .2, .r2, .R2, etc.
 READFORMAT=   # e.g., fastq, fq, fasta, fa, etc.
-OUTPUT=/path/to/desired/qc/output/file/destination
+OUTPUT=/path/to/desired/qc/output/folder
 # LIST ALL SAMPLE NAMES SEPARATED BY SPACES AFTER: &quot;for FILE in &quot;
 for FILE in sampleA sampleB sampleC
 #######################################
@@ -500,7 +500,7 @@ module load samtools/1.9
 
 #######################################
 # EDIT PATHS AND FILE NAMES AFTER: &quot;=&quot;
-GENOMEINDEX=/path/to/star/genome/indices
+GENOMEINDEX=/path/to/star/genome/indices/folder
 GENOMESEQ=/path/to/genome/fasta/file.fa
 #######################################
 
@@ -519,14 +519,15 @@ samtools faidx $GENOMESEQ
 <p>Note the path where this R file is saved, as it will need to be referenced in the following shell script. The contents of this file are shown below. Edit the paths and file names where indicated.</p>
 <pre class="r"><code>#######################################
 # EDIT VARIABLES TO MATCH THOSE BY THE SAME NAME IN THE SHELL SCRIPT BUT IN QUOTES HERE
-OUTPUT &lt;- &quot;/path/to/desired/output/file/destination&quot;
+OUTPUT &lt;- &quot;/path/to/desired/output/folder&quot;
 ANNOTYPE &lt;- &quot;&quot;   # e.g., GENCODE, LNCipedia, etc.
+PREFIX &lt;- &quot;&quot;  # the shared prefix of all raw data being processed in this run; e.g., SRR, PM_C28_WT, etc.
 #######################################
 
 #######################################
 # DO NOT EDIT
 setwd(OUTPUT)
-dirs &lt;- dir(OUTPUT, pattern=&quot;SRR[[:print:]]+$&quot;)
+dirs &lt;- dir(OUTPUT, pattern=c(PREFIX,&quot;[[:print:]]+$&quot;))
 
 fileName &lt;- file.path(dirs, paste0(dirs, paste0(&quot;.&quot;,ANNOTYPE,&quot;.gene_name.base.counts.txt&quot;)))
 newFileName &lt;- file.path(dirs, paste0(dirs, paste0(&quot;.&quot;,ANNOTYPE,&quot;.table_rpkm.txt&quot;)))
@@ -566,14 +567,15 @@ module load R/3.6.1
 #######################################
 # EDIT PATHS AND FILE NAMES AFTER: &quot;=&quot;
 CELLTYPE=   # e.g., RPE1_Control, THP1_PMAtreated, etc.
-INPUT=/path/to/raw/seq/reads
+INPUT=/path/to/raw/seq/reads/folder
 READFORMAT=   # e.g., fastq, fq, fasta, fa, etc.
-OUTPUT=/path/to/desired/output/file/destination
-GENOMEINDEX=/path/to/star/genome/indices
-ANNOTATION=/path/to/genome/annotation.gtf
+OUTPUT=/path/to/desired/output/folder
+GENOMEINDEX=/path/to/star/genome/indices/folder
+ANNOTATION=/path/to/genome/annotation/file.gtf
 ANNOTYPE=   # e.g., GENCODE, LNCipedia, etc.
+ATTRIBUTE=    # check column 9 of annotation file for desired gene identifier; e.g., gene_id, gene_name, gene, transcript_id, product, etc.
 RPKMscript=/path/to/Rscript/file.r
-SAMPLE=sampleA   # must match the first sample in your dataset
+SAMPLE=sampleA    # must match the first sample in your dataset
 # LIST ALL SAMPLE NAMES SEPARATED BY SPACES AFTER: &quot;for FILE in &quot;
 for FILE in sampleA sampleB sampleC
 #######################################
@@ -597,7 +599,7 @@ samtools index $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.o
 # QUALITY CONTROL OF MAPPED READ FILES WITH RNASEQC
 rna-seqc $ANNOTATION $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam $OUTPUT/$FILE/$FILE.$ANNOTYPE.rnaseqc_report --coverage --rpkm --sample $FILE.$ANNOTYPE.rnaseqc
 # DETERMINE THE NUMBER OF READS MAPPED TO EACH GENE OF THE GENOME WITH FEATURECOUNTS
-featureCounts -T 32 --ignoreDup -g gene_name -a $ANNOTATION -o $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam
+featureCounts -T 32 --ignoreDup -g $ATTRIBUTE -a $ANNOTATION -o $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam
 # REMOVE HEADER LINE FROM COUNTS FILE
 echo &quot;$(tail -n +2 $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt)&quot; &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.counts.txt
 # NAME THE COUNTS COLUMN
@@ -662,16 +664,17 @@ module load R/3.6.1
 #######################################
 # EDIT PATHS AND FILE NAMES AFTER: &quot;=&quot;
 CELLTYPE=   # e.g., RPE1_Control, THP1_PMAtreated, etc.
-INPUT=/path/to/raw/seq/reads
+INPUT=/path/to/raw/seq/reads/folder
 END1=   # paired-end 1 file suffix; e.g., _1, _r1, _R1, .1, .r1, .R1, etc.
 END2=   # paired-end 2 file suffix; e.g., _2, _r2, _R2, .2, .r2, .R2, etc.
 READFORMAT=   # e.g., fastq, fq, fasta, fa, etc.
-OUTPUT=/path/to/desired/output/file/destination
-GENOMEINDEX=/path/to/star/genome/indices
-ANNOTATION=/path/to/genome/annotation.gtf
+OUTPUT=/path/to/desired/output/folder
+GENOMEINDEX=/path/to/star/genome/indices/folder
+ANNOTATION=/path/to/genome/annotation/file.gtf
 ANNOTYPE=   # e.g., GENCODE, LNCipedia, etc.
+ATTRIBUTE=    # check column 9 of annotation file for desired gene identifier; e.g., gene_id, gene_name, gene, transcript_id, product, etc.
 RPKMscript=/path/to/Rscript/file.r
-SAMPLE=sampleA   # must match the first sample in your dataset
+SAMPLE=sampleA    # must match the first sample in your dataset
 # LIST ALL SAMPLE NAMES SEPARATED BY SPACES AFTER: &quot;for FILE in &quot;
 for FILE in sampleA sampleB sampleC
 #######################################
@@ -695,7 +698,7 @@ samtools index $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.o
 # QUALITY CONTROL OF MAPPED READ FILES WITH RNASEQC
 rna-seqc $ANNOTATION $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam $OUTPUT/$FILE/$FILE.$ANNOTYPE.rnaseqc_report --coverage --rpkm --sample $FILE.$ANNOTYPE.rnaseqc
 # DETERMINE THE NUMBER OF READS MAPPED TO EACH GENE OF THE GENOME WITH FEATURECOUNTS
-featureCounts -T 32 --ignoreDup -g gene_name -a $ANNOTATION -o $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam
+featureCounts -T 32 --ignoreDup -g $ATTRIBUTE -a $ANNOTATION -o $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam
 # REMOVE HEADER LINE FROM COUNTS FILE
 echo &quot;$(tail -n +2 $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt)&quot; &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.counts.txt
 # NAME THE COUNTS COLUMN
