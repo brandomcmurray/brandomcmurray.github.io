@@ -246,7 +246,7 @@ div.tocify {
 <h1 class="title toc-ignore">RNA-seq Data Analysis Pipeline</h1>
 <h4 class="author">Author: Brandon McMurray</h4>
 <h4 class="author">Conact: <a href="mailto:brandon.mcmurray@sickkids.ca" class="email">brandon.mcmurray@sickkids.ca</a></h4>
-<h4 class="date">Established: August 01, 2020 | Updated: November 23, 2021</h4>
+<h4 class="date">Established: August 01, 2020 | Updated: February 14, 2022</h4>
 
 </div>
 
@@ -546,7 +546,7 @@ rpkm &lt;- (10^9)*t(t(d/l)/cS)
 write.table(rpkm,file=newFileName[i],sep=&quot;\t&quot;,quote=F,row.names=F)
 }
 #######################################</code></pre>
-<p>Next, write a shell file (.sh) with the contents shown below. Edit the paths and file names where indicated.</p>
+<p>Next, write a shell file (.sh) with the contents shown below. Edit the paths and file names where indicated. Generally, <code>FEATURE=exon</code> and <code>ATTRIBUTE=gene_id</code> are used; only change the inputs for these variables if you know what you are doing.</p>
 <div id="single-end-reads-1" class="section level3" number="3.1.1">
 <h3 number="3.1.1"><span class="header-section-number">3.1.1</span> Single-end reads</h3>
 <pre class="bash"><code>#!/bin/bash
@@ -566,13 +566,14 @@ module load R/3.6.1
 
 #######################################
 # EDIT PATHS AND FILE NAMES AFTER: &quot;=&quot;
-CELLTYPE=   # e.g., RPE1_Control, THP1_PMAtreated, etc.
+CELLTYPE=    # e.g., RPE1_Control, THP1_PMAtreated, etc.
 INPUT=/path/to/raw/seq/reads/folder
-READFORMAT=   # e.g., fastq, fq, fasta, fa, etc.
+READFORMAT=    # e.g., fastq, fq, fasta, fa, etc.
 OUTPUT=/path/to/desired/output/folder
 GENOMEINDEX=/path/to/star/genome/indices/folder
 ANNOTATION=/path/to/genome/annotation/file.gtf
-ANNOTYPE=   # e.g., GENCODE, LNCipedia, etc.
+ANNOTYPE=    # e.g., GENCODE, LNCipedia, etc.
+FEATURE=    # check column 3 of annotation file for desired feature to count reads to; e.g., exon, transcript, gene, CDS, UTR, etc.
 ATTRIBUTE=    # check column 9 of annotation file for desired gene identifier; e.g., gene_id, gene_name, gene, transcript_id, product, etc.
 RPKMscript=/path/to/Rscript/file.r
 SAMPLE=sampleA    # must match the first sample in your dataset
@@ -599,17 +600,17 @@ samtools index $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.o
 # QUALITY CONTROL OF MAPPED READ FILES WITH RNASEQC
 rna-seqc $ANNOTATION $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam $OUTPUT/$FILE/$FILE.$ANNOTYPE.rnaseqc_report --coverage --rpkm --sample $FILE.$ANNOTYPE.rnaseqc
 # DETERMINE THE NUMBER OF READS MAPPED TO EACH GENE OF THE GENOME WITH FEATURECOUNTS
-featureCounts -T 32 --ignoreDup -g $ATTRIBUTE -a $ANNOTATION -o $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam
+featureCounts -T 32 --ignoreDup -t $FEATURE -g $ATTRIBUTE -a $ANNOTATION -o $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.base.counts.txt $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam
 # REMOVE HEADER LINE FROM COUNTS FILE
-echo &quot;$(tail -n +2 $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt)&quot; &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.counts.txt
+echo &quot;$(tail -n +2 $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.base.counts.txt)&quot; &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.counts.txt
 # NAME THE COUNTS COLUMN
-sed -i &quot;1s/\/hpf.*bam/$FILE.Counts/&quot; $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.counts.txt
+sed -i &quot;1s/\/hpf.*bam/$FILE.Counts/&quot; $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.counts.txt
 # ISOLATE THE COUNTS COLUMN
-cut -f7 $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.counts.txt &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.countsonly.txt
+cut -f7 $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.counts.txt &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.countsonly.txt
 # COPY GENEID DATA TO A SEPARATE FILE
-awk &#39;{print $1}&#39; $OUTPUT/$SAMPLE/$SAMPLE.$ANNOTYPE.gene_name.counts.txt &gt; $OUTPUT/$ANNOTYPE.gene_ids.txt
+awk &#39;{print $1}&#39; $OUTPUT/$SAMPLE/$SAMPLE.$ANNOTYPE.$ATTRIBUTE.counts.txt &gt; $OUTPUT/$ANNOTYPE.gene_ids.txt
 # ADD ALL COUNTS COLUMNS FOR EACH SAMPLE TO THE GENEID DATA
-paste $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/*/*.$ANNOTYPE.gene_name.countsonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.counts.consensus.txt
+paste $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/*/*.$ANNOTYPE.$ATTRIBUTE.countsonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.counts.consensus.txt
 # CALCULATE THE NORMALIZED EXPRESSION VALUES FOR EACH GENE
 Rscript $RPKMscript
 # NAME THE RPKM COLUMN
@@ -617,7 +618,7 @@ sed -i &quot;1s/X.*bam/$FILE.RPKM/&quot; $OUTPUT/$FILE/$FILE.$ANNOTYPE.table_rpk
 # ISOLATE THE RPKM COLUMN
 cut -f2 $OUTPUT/$FILE/$FILE.$ANNOTYPE.table_rpkm.txt &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.rpkmonly.txt
 # COPY GENE POSITION INFORMATION TO A SEPARATE FILE
-awk &#39;BEGIN {OFS=&quot;\t&quot;}; {print $2,$3,$4}&#39; $OUTPUT/$SAMPLE/$SAMPLE.$ANNOTYPE.gene_name.base.counts.txt &gt; $OUTPUT/featureCoordTemp.$ANNOTYPE.txt
+awk &#39;BEGIN {OFS=&quot;\t&quot;}; {print $2,$3,$4,$5}&#39; $OUTPUT/$SAMPLE/$SAMPLE.$ANNOTYPE.$ATTRIBUTE.base.counts.txt &gt; $OUTPUT/featureCoordTemp.$ANNOTYPE.txt
 # REMOVE HEADER LINE FROM GENOMIC POSITION FILE
 echo &quot;$(tail -n +2 $OUTPUT/featureCoordTemp.$ANNOTYPE.txt)&quot; &gt; $OUTPUT/featureCoordTemp.$ANNOTYPE.txt
 # PARSE AND SIMPLIFY GENOMIC POSITION INFORMATION
@@ -633,12 +634,15 @@ awk &#39;BEGIN {OFS=&quot;\t&quot;}; {
   for(i=2;i&lt;=num2;i++){
     max=(max&gt;array2[i]?max:array2[i])
   }
-  print array[1],min,max
+  split($4,array3,&quot;;&quot;)
+  print array[1],min,max,array3[1]
 }&#39; $OUTPUT/featureCoordTemp.$ANNOTYPE.txt &gt; $OUTPUT/featureCoord.$ANNOTYPE.txt
 # REMOVE TEMPORARY GENOMIC POSITION FILE
 rm $OUTPUT/featureCoordTemp.$ANNOTYPE.txt
 # ADD ALL RPKM COLUMNS FOR EACH SAMPLE TO THE GENOMIC POSITION INFORMATION
-paste $OUTPUT/featureCoord.$ANNOTYPE.txt $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/*/*.$ANNOTYPE.rpkmonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.RPKM.consensus.txt
+paste $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/featureCoord.$ANNOTYPE.txt $OUTPUT/*/*.$ANNOTYPE.rpkmonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.RPKM.genPos.consensus.txt
+# ADD ALL COUNTS COLUMNS FOR EACH SAMPLE TO THE GENOMIC POSITION INFORMATION
+paste $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/featureCoord.$ANNOTYPE.txt $OUTPUT/*/*.$ANNOTYPE.$ATTRIBUTE.countsonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.counts.genPos.consensus.txt
 done
 #######################################</code></pre>
 <p>Finally, execute the newly written shell file by submitting it as a job to the scheduler. To do this, use <code>qsub</code>.</p>
@@ -665,14 +669,15 @@ module load R/3.6.1
 # EDIT PATHS AND FILE NAMES AFTER: &quot;=&quot;
 CELLTYPE=   # e.g., RPE1_Control, THP1_PMAtreated, etc.
 INPUT=/path/to/raw/seq/reads/folder
-END1=   # paired-end 1 file suffix; e.g., _1, _r1, _R1, .1, .r1, .R1, etc.
-END2=   # paired-end 2 file suffix; e.g., _2, _r2, _R2, .2, .r2, .R2, etc.
-READFORMAT=   # e.g., fastq, fq, fasta, fa, etc.
+END1=    # paired-end 1 file suffix; e.g., _1, _r1, _R1, .1, .r1, .R1, etc.
+END2=    # paired-end 2 file suffix; e.g., _2, _r2, _R2, .2, .r2, .R2, etc.
+READFORMAT=    # e.g., fastq, fq, fasta, fa, etc.
 OUTPUT=/path/to/desired/output/folder
 GENOMEINDEX=/path/to/star/genome/indices/folder
 ANNOTATION=/path/to/genome/annotation/file.gtf
-ANNOTYPE=   # e.g., GENCODE, LNCipedia, etc.
-ATTRIBUTE=    # check column 9 of annotation file for desired gene identifier; e.g., gene_id, gene_name, gene, transcript_id, product, etc.
+ANNOTYPE=    # e.g., GENCODE, LNCipedia, etc.
+FEATURE=    # check column 3 of annotation file for desired feature to count reads to; e.g., exon, transcript, gene, CDS, UTR, etc.
+ATTRIBUTE=    # check column 9 of annotation file for desired gene identifier; e.g., gene_id, gene_name, gene, transcript_id, product, exon_id, etc.
 RPKMscript=/path/to/Rscript/file.r
 SAMPLE=sampleA    # must match the first sample in your dataset
 # LIST ALL SAMPLE NAMES SEPARATED BY SPACES AFTER: &quot;for FILE in &quot;
@@ -698,17 +703,17 @@ samtools index $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.o
 # QUALITY CONTROL OF MAPPED READ FILES WITH RNASEQC
 rna-seqc $ANNOTATION $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam $OUTPUT/$FILE/$FILE.$ANNOTYPE.rnaseqc_report --coverage --rpkm --sample $FILE.$ANNOTYPE.rnaseqc
 # DETERMINE THE NUMBER OF READS MAPPED TO EACH GENE OF THE GENOME WITH FEATURECOUNTS
-featureCounts -T 32 --ignoreDup -g $ATTRIBUTE -a $ANNOTATION -o $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam
+featureCounts -T 32 --ignoreDup -p -t $FEATURE -g $ATTRIBUTE -a $ANNOTATION -o $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.base.counts.txt $OUTPUT/$FILE/$FILE\_$ANNOTYPE\annotation_Aligned.sortedByCoord.out.bam
 # REMOVE HEADER LINE FROM COUNTS FILE
-echo &quot;$(tail -n +2 $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.base.counts.txt)&quot; &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.counts.txt
+echo &quot;$(tail -n +2 $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.base.counts.txt)&quot; &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.counts.txt
 # NAME THE COUNTS COLUMN
-sed -i &quot;1s/\/hpf.*bam/$FILE.Counts/&quot; $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.counts.txt
+sed -i &quot;1s/\/hpf.*bam/$FILE.Counts/&quot; $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.counts.txt
 # ISOLATE THE COUNTS COLUMN
-cut -f7 $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.counts.txt &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.gene_name.countsonly.txt
+cut -f7 $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.counts.txt &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.$ATTRIBUTE.countsonly.txt
 # COPY GENEID DATA TO A SEPARATE FILE
-awk &#39;{print $1}&#39; $OUTPUT/$SAMPLE/$SAMPLE.$ANNOTYPE.gene_name.counts.txt &gt; $OUTPUT/$ANNOTYPE.gene_ids.txt
+awk &#39;{print $1}&#39; $OUTPUT/$SAMPLE/$SAMPLE.$ANNOTYPE.$ATTRIBUTE.counts.txt &gt; $OUTPUT/$ANNOTYPE.gene_ids.txt
 # ADD ALL COUNTS COLUMNS FOR EACH SAMPLE TO THE GENEID DATA
-paste $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/*/*.$ANNOTYPE.gene_name.countsonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.counts.consensus.txt
+paste $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/*/*.$ANNOTYPE.$ATTRIBUTE.countsonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.counts.consensus.txt
 # CALCULATE THE NORMALIZED EXPRESSION VALUES FOR EACH GENE
 Rscript $RPKMscript
 # NAME THE RPKM COLUMN
@@ -716,7 +721,7 @@ sed -i &quot;1s/X.*bam/$FILE.RPKM/&quot; $OUTPUT/$FILE/$FILE.$ANNOTYPE.table_rpk
 # ISOLATE THE RPKM COLUMN
 cut -f2 $OUTPUT/$FILE/$FILE.$ANNOTYPE.table_rpkm.txt &gt; $OUTPUT/$FILE/$FILE.$ANNOTYPE.rpkmonly.txt
 # COPY GENE POSITION INFORMATION TO A SEPARATE FILE
-awk &#39;BEGIN {OFS=&quot;\t&quot;}; {print $2,$3,$4}&#39; $OUTPUT/$SAMPLE/$SAMPLE.$ANNOTYPE.gene_name.base.counts.txt &gt; $OUTPUT/featureCoordTemp.$ANNOTYPE.txt
+awk &#39;BEGIN {OFS=&quot;\t&quot;}; {print $2,$3,$4,$5}&#39; $OUTPUT/$SAMPLE/$SAMPLE.$ANNOTYPE.$ATTRIBUTE.base.counts.txt &gt; $OUTPUT/featureCoordTemp.$ANNOTYPE.txt
 # REMOVE HEADER LINE FROM GENOMIC POSITION FILE
 echo &quot;$(tail -n +2 $OUTPUT/featureCoordTemp.$ANNOTYPE.txt)&quot; &gt; $OUTPUT/featureCoordTemp.$ANNOTYPE.txt
 # PARSE AND SIMPLIFY GENOMIC POSITION INFORMATION
@@ -732,12 +737,15 @@ awk &#39;BEGIN {OFS=&quot;\t&quot;}; {
   for(i=2;i&lt;=num2;i++){
     max=(max&gt;array2[i]?max:array2[i])
   }
-  print array[1],min,max
+  split($4,array3,&quot;;&quot;)
+  print array[1],min,max,array3[1]
 }&#39; $OUTPUT/featureCoordTemp.$ANNOTYPE.txt &gt; $OUTPUT/featureCoord.$ANNOTYPE.txt
 # REMOVE TEMPORARY GENOMIC POSITION FILE
 rm $OUTPUT/featureCoordTemp.$ANNOTYPE.txt
 # ADD ALL RPKM COLUMNS FOR EACH SAMPLE TO THE GENOMIC POSITION INFORMATION
-paste $OUTPUT/featureCoord.$ANNOTYPE.txt $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/*/*.$ANNOTYPE.rpkmonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.RPKM.consensus.txt
+paste $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/featureCoord.$ANNOTYPE.txt $OUTPUT/*/*.$ANNOTYPE.rpkmonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.RPKM.genPos.consensus.txt
+# ADD ALL COUNTS COLUMNS FOR EACH SAMPLE TO THE GENOMIC POSITION INFORMATION
+paste $OUTPUT/$ANNOTYPE.gene_ids.txt $OUTPUT/featureCoord.$ANNOTYPE.txt $OUTPUT/*/*.$ANNOTYPE.$ATTRIBUTE.countsonly.txt &gt; $OUTPUT/$CELLTYPE.$ANNOTYPE.counts.genPos.consensus.txt
 done
 #######################################</code></pre>
 <p>Finally, execute the newly written shell file by submitting it as a job to the scheduler. To do this, use <code>qsub</code>.</p>
@@ -745,8 +753,21 @@ done
 </div>
 </div>
 </div>
-<div id="references" class="section level1" number="4">
-<h1 number="4"><span class="header-section-number">4</span> References</h1>
+<div id="common-problems-and-solutions" class="section level1" number="4">
+<h1 number="4"><span class="header-section-number">4</span> Common problems and solutions</h1>
+<div id="incorrectly-formatted-variables" class="section level2" number="4.1">
+<h2 number="4.1"><span class="header-section-number">4.1</span> Incorrectly formatted variables</h2>
+<p>At the top of most scripts in this protocol, where you are supposed to curate the variables to suit your data, make sure you are adhering to the these strict rules:</p>
+<p>For shell script variables, type immediately following the “<code>=</code>” sign. Do NOT add a space between the variable name and your text, and do NOT put your text in single or double quotes. This applies to strings <em>and</em> file/folder paths.</p>
+<p>For R script variables, type between the double quotes that follow the “<code>&lt;-</code>” sign. Do NOT add a space between the opening <em>or</em> closing quotation mark and your text. This applies to strings <em>and</em> file/folder paths. Double-check whether you have accidentally included extra single or double quotes within the required set already in the template.</p>
+</div>
+<div id="specified-fastq-file-prefix-does-not-match-your-raw-data-prefixes" class="section level2" number="4.2">
+<h2 number="4.2"><span class="header-section-number">4.2</span> Specified fastq file prefix does not match your raw data prefixes</h2>
+<p>In the R script, you must specify the prefix shared by all samples you wish to analyze in this job. The more specific (/longer) the shared prefix, the better. This is particularly important if you are analyzing a new subset of samples and storing their results in an output folder you have previously stored results in. You do not want RPKMs to be (re-)calculated for <em>all</em> samples in that folder, rather, only those files part of this latest job which have a shared prefix that is distinct from previously analyzed samples in the same destination folder.</p>
+</div>
+</div>
+<div id="references" class="section level1" number="5">
+<h1 number="5"><span class="header-section-number">5</span> References</h1>
 <p>Andrews, S. (2010). FASTQC. A quality control tool for high throughput sequence data. <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/" class="uri">http://www.bioinformatics.babraham.ac.uk/projects/fastqc/</a>. Accessed 16 September 2021.</p>
 <p>Dobin, A., Davis, C. A., Schlesinger, F., Drenkow, J., Zaleski, C., Jha, S., Batut, P., Chaisson, M., &amp; Gingeras, T. R. (2013). STAR: ultrafast universal RNA-seq aligner. <em>Bioinformatics (Oxford, England)</em>, 29(1), 15–21. <a href="https://doi.org/10.1093/bioinformatics/bts635" class="uri">https://doi.org/10.1093/bioinformatics/bts635</a></p>
 </div>
