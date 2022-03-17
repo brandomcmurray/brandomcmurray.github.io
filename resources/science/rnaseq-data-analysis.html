@@ -10,7 +10,7 @@
 
 
 <meta name="author" content="Author: Brandon McMurray" />
-<meta name="author" content="Conact: brandon.mcmurray@sickkids.ca" />
+<meta name="author" content="Contact: brandon.mcmurray@sickkids.ca" />
 
 
 <title>RNA-seq Data Analysis Pipeline</title>
@@ -244,9 +244,10 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">RNA-seq Data Analysis Pipeline</h1>
+<h3 class="subtitle">v2.0.1</h3>
 <h4 class="author">Author: Brandon McMurray</h4>
-<h4 class="author">Conact: <a href="mailto:brandon.mcmurray@sickkids.ca" class="email">brandon.mcmurray@sickkids.ca</a></h4>
-<h4 class="date">Established: August 01, 2020 | Updated: February 14, 2022</h4>
+<h4 class="author">Contact: <a href="mailto:brandon.mcmurray@sickkids.ca" class="email">brandon.mcmurray@sickkids.ca</a></h4>
+<h4 class="date">Established: August 01, 2020 | Updated: March 15, 2022</h4>
 
 </div>
 
@@ -520,8 +521,9 @@ samtools faidx $GENOMESEQ
 <pre class="r"><code>#######################################
 # EDIT VARIABLES TO MATCH THOSE BY THE SAME NAME IN THE SHELL SCRIPT BUT IN QUOTES HERE
 OUTPUT &lt;- &quot;/path/to/desired/output/folder&quot;
-ANNOTYPE &lt;- &quot;&quot;   # e.g., GENCODE, LNCipedia, etc.
-PREFIX &lt;- &quot;&quot;  # the shared prefix of all raw data being processed in this run; e.g., SRR, PM_C28_WT, etc.
+ANNOTYPE &lt;- &quot;&quot;    # e.g., GENCODE, LNCipedia, etc.
+ATTRIBUTE &lt;- &quot;&quot;    # check column 9 of annotation file for desired gene identifier; e.g., gene_id, gene_name, gene, transcript_id, product, etc.
+PREFIX &lt;- &quot;&quot;    # the shared prefix of all raw data being processed in this run; e.g., SRR, PM_C28_WT, etc.
 #######################################
 
 #######################################
@@ -529,20 +531,22 @@ PREFIX &lt;- &quot;&quot;  # the shared prefix of all raw data being processed i
 setwd(OUTPUT)
 dirs &lt;- dir(OUTPUT, pattern=c(PREFIX,&quot;[[:print:]]+$&quot;))
 
-fileName &lt;- file.path(dirs, paste0(dirs, paste0(&quot;.&quot;,ANNOTYPE,&quot;.gene_name.base.counts.txt&quot;)))
+fileName &lt;- file.path(dirs, paste0(dirs, paste0(&quot;.&quot;,ANNOTYPE,&quot;.&quot;,ATTRIBUTE,&quot;.base.counts.txt&quot;)))
 newFileName &lt;- file.path(dirs, paste0(dirs, paste0(&quot;.&quot;,ANNOTYPE,&quot;.table_rpkm.txt&quot;)))
 
 for (i in seq(along=fileName)) {
 d &lt;- read.table(fileName[i],sep=&quot;\t&quot;,header=T)
 row.names(d) &lt;- d$Geneid
-# SPECIFY COLUMN OF COUNTS TABLE CONTAINING GENE LENGTHS
+# STORE GENE LENGTHS COLUMN OF COUNTS TABLE
 l &lt;- d[,6]
-# REMOVE ALL COLUMNS EXCEPT FOR LENGTH AND COUNTS
-d &lt;- d[,-c(1:5)]
-# SUM COLUMNS TO GET TOTAL MAPPED READS PER SAMPLE
-cS &lt;- colSums(d)
-# CALCULATE RPKMS (ASSUMING GENE LENGTHS ARE NOT KB)
+# SUM COUNTS COLUMNS TO GET TOTAL MAPPED READS PER SAMPLE
+cS &lt;- colSums(d[, 7:ncol(d), drop=F])
+# STORE A MATRIX OF THE READ COUNTS PER GENE
+d &lt;- d[,-c(1:6)]
+# CALCULATE RPKMS FOR EACH GENE (ASSUMING GENE LENGTHS ARE NOT KB)
 rpkm &lt;- (10^9)*t(t(d/l)/cS)
+# RESTORE COLUMN NAME
+colnames(rpkm)[1] &lt;- names(cS)
 write.table(rpkm,file=newFileName[i],sep=&quot;\t&quot;,quote=F,row.names=F)
 }
 #######################################</code></pre>
