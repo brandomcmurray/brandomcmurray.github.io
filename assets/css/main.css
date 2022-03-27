@@ -2930,7 +2930,7 @@ input, select, textarea {
 	#footer {
 		background: #E8EEF4;
 		color: #7c8081;
-		padding: 3em 5em 3em 5em;
+		padding: 0.8em 5em 3em 5em;
 		text-align: center;
 	}
 
@@ -2955,6 +2955,69 @@ input, select, textarea {
 					padding: 0;
 					border: 0;
 				}
+
+	.footer_tab {
+		box-sizing: border-box;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+		text-size-adjust: none;
+		margin-top: -29px;
+		padding-top: 0.8em;
+		clip-path: polygon(0 28px,30% 28px,calc(30% + 96px) 0,calc(70% - 96px) 0,70% 28px,100% 28px,100% 100%,0 100%);
+	}
+
+	.footer_backToTop {
+		-webkit-font-smoothing: antialiased;
+		text-size-adjust: none;
+		box-sizing: border-box;
+		cursor: pointer;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		padding: 16px;
+		background: initial;
+		border: none;
+		position: relative;
+		top: -16px;
+		margin: 0 auto -30px;
+	}
+
+		.footer_backToTop svg {
+			width: 13px;
+			height: 6px;
+			margin-bottom: 16px;
+		}
+
+		.footer_backToTop span {
+			font-family: Normative Pro,Segoe UI,Arial,sans-serif;
+			font-weight: 400;
+			font-size: 12px;
+			line-height: 18px;
+			letter-spacing: .15em;
+			text-transform: uppercase;
+			color: #00BCD4;
+			transition: color .2s ease-in-out;
+		}
+
+	.footer_spacer {
+		margin: 20px auto;
+		width: 149px;
+		height: 2px;
+		position: relative;
+		overflow: hidden;
+	}
+
+		.footer_spacer svg {
+			fill: none;
+			box-sizing: border-box;
+			width: 150px;
+			height: 2px;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%,-50%);
+		}
 
 /* Wide */
 
@@ -3034,7 +3097,7 @@ input, select, textarea {
 		/* Footer */
 
 			#footer {
-				padding: 4em;
+				padding: 0.8em 4em 2em;
 			}
 
 	}
@@ -3242,7 +3305,7 @@ input, select, textarea {
 		/* Footer */
 
 			#footer {
-				padding: 4em 1.5em;
+				padding: 0.8em 4em 1.5em;
 			}
 
 		/* Nav */
@@ -3633,7 +3696,7 @@ input, select, textarea {
 		/* Footer */
 
 			#footer {
-				padding: 3em 1.5em;
+				padding: 0.8em 3em 1.5em;
 			}
 
 				#footer .copyright li {
@@ -3642,6 +3705,12 @@ input, select, textarea {
 					padding: 0;
 					border: 0;
 				}
+
+			.footer_tab {
+				margin-top: -15px;
+				padding-top: 0.8em;
+				clip-path: polygon(0 14px,30% 14px,calc(30% + 32px) 0,calc(70% - 32px) 0,70% 14px,100% 14px,100% 100%,0 100%);
+			}
 
 		/* Nav */
 
