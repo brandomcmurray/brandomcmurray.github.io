@@ -1971,6 +1971,10 @@ input, select, textarea {
 	section.special, article.special {
 		text-align: center;
 	}
+	
+	section#pubs a {
+		border-bottom-style: none;
+	}
 
 	header.major {
 		padding-bottom: 2em;
