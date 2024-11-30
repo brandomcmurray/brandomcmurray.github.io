@@ -2021,7 +2021,7 @@ input, select, textarea {
 			left: 0;
 			position: absolute;
 			text-align: center;
-			top: 1em;
+			top: 0;
 			width: 100%;
 		}
 
@@ -2143,6 +2143,34 @@ input, select, textarea {
 				padding: 1px;
 			}
 
+/* Logo */
+
+	#logo {
+		width: 24px;
+		height: 24px;
+		position: relative;
+	}
+
+	#logo img {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%) scale(4);
+	}
+
+	#header #logo img {
+		filter: none;
+	}
+
+	#header.alt #logo img {
+		filter: brightness(0) invert(1); /* Invert logo colour */
+	}
+
+	#logo a, 
+	#logo a:hover {
+		border-bottom: none; /* Remove the underline */
+	}
+
 /* Icon */
 
 	.icon {
@@ -2159,11 +2187,11 @@ input, select, textarea {
 			text-rendering: auto;
 			line-height: 1;
 			text-transform: none !important;
-			font-family: 'Font Awesome 5 Free';
+			font-family: 'Font Awesome 6 Free';
 			font-weight: 400;
 		}
 
-		.icon.solid:before {
+		.icon.fa-solid:before {
 			font-weight: 900;
 		}
 
@@ -2171,8 +2199,9 @@ input, select, textarea {
 			line-height: inherit;
 		}
 
-		.icon.brands:before {
-			font-family: 'Font Awesome 5 Brands';
+		.icon.brands:before,
+		.icon.fab:before {
+			font-family: 'Font Awesome 6 Brands';
 		}
 
 		.icon.circle {
@@ -2203,7 +2232,7 @@ input, select, textarea {
 			}
 
 				.icon.circle.fa-twitter:hover {
-					background: #7fb7d2;
+					background: #82b8d3;
 				}
 
 			.icon.circle.fa-facebook-f {
@@ -2212,7 +2241,7 @@ input, select, textarea {
 			}
 
 				.icon.circle.fa-facebook-f:hover {
-					background: #829bc9;
+					background: #859ecb;
 				}
 
 			.icon.circle.fa-google-plus-g {
@@ -2221,16 +2250,25 @@ input, select, textarea {
 			}
 
 				.icon.circle.fa-google-plus-g:hover {
-					background: #df7b77;
+					background: #e07e7a;
+				}
+
+			.icon.circle.fa-google-scholar {
+				background: #86a4d5;
+				color: #fff;
+			}
+
+				.icon.circle.fa-google-scholar:hover {
+					background: #95afda;
 				}
 
 			.icon.circle.fa-github {
-				background: #333;
+				background: #24292e;
 				color: #fff;
 			}
 
 				.icon.circle.fa-github:hover {
-					background: #423d38;
+					background: #3f4448;
 				}
 
 			.icon.circle.fa-linkedin-in {
@@ -2239,7 +2277,7 @@ input, select, textarea {
 			}
 
 				.icon.circle.fa-linkedin-in:hover {
-					background: #1d80ad;
+					background: #2c87b3;
 				}
 
 		.icon.featured {
@@ -2604,6 +2642,7 @@ input, select, textarea {
 		top: 0;
 		width: 100%;
 		z-index: 10000;
+		display: flex;
 	}
 
 		#header h1 {
@@ -2670,7 +2709,7 @@ input, select, textarea {
 							text-rendering: auto;
 							line-height: 1;
 							text-transform: none !important;
-							font-family: 'Font Awesome 5 Free';
+							font-family: 'Font Awesome 6 Free';
 							font-weight: 900;
 						}
 
@@ -3366,7 +3405,7 @@ input, select, textarea {
 						text-rendering: auto;
 						line-height: 1;
 						text-transform: none !important;
-						font-family: 'Font Awesome 5 Free';
+						font-family: 'Font Awesome 6 Free';
 						font-weight: 900;
 					}
 
