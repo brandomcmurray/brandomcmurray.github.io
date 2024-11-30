@@ -2145,17 +2145,20 @@ input, select, textarea {
 
 /* Logo */
 
-	#header #logo {
+	#logo {
 		width: 24px;
 		height: 24px;
 		position: relative;
 	}
 
-	#header #logo img {
+	#logo img {
 		position: absolute;
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%) scale(4);
+	}
+
+	#header #logo img {
 		filter: none;
 	}
 
